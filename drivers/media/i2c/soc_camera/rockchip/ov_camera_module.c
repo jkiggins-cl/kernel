@@ -114,6 +114,8 @@ static struct ov_camera_module_config *ov_camera_module_find_config(
 	unsigned long gcdiv;
 	struct v4l2_subdev_frame_interval norm_interval;
 
+	pltfrm_camera_module_pr_err(&cam_mod->sd, "find config called\n");
+
 	if (!IS_ERR_OR_NULL(fmt))
 		pltfrm_camera_module_pr_debug(&cam_mod->sd,
 			"%dx%d, fmt code 0x%04x\n",
@@ -238,6 +240,8 @@ static int ov_camera_module_attach(
 	int ret = 0;
 	struct ov_camera_module_custom_config *custom;
 
+	pltfrm_camera_module_pr_info(&cam_mod->sd, "\n");
+
 	custom = &cam_mod->custom;
 
 	if (custom->check_camera_id) {
@@ -285,6 +289,8 @@ int ov_camera_module_s_fmt(struct v4l2_subdev *sd,
 	struct ov_camera_module *cam_mod =  to_ov_camera_module(sd);
 	struct v4l2_mbus_framefmt *fmt = &format->format;
 	int ret = 0;
+
+	pltfrm_camera_module_pr_err(&cam_mod->sd, "This method can set the active config\n");
 
 	pltfrm_camera_module_pr_debug(&cam_mod->sd, "%dx%d, fmt code 0x%04x\n",
 		fmt->width, fmt->height, fmt->code);
@@ -349,6 +355,8 @@ int ov_camera_module_s_frame_interval(
 	struct ov_camera_module_config *config;
 	unsigned int vts;
 	int ret = 0;
+
+	pltfrm_camera_module_pr_err(&cam_mod->sd, "This method can set the active config\n");
 
 	if ((interval->interval.denominator == 0) ||
 		(interval->interval.numerator == 0)) {
@@ -586,6 +594,7 @@ int ov_camera_module_s_power(struct v4l2_subdev *sd, int on)
 			if (!IS_ERR_VALUE(ret)) {
 				mdelay(cam_mod->custom.power_up_delays_ms[0]);
 				cam_mod->state = OV_CAMERA_MODULE_HW_STANDBY;
+				pltfrm_camera_module_pr_info(&cam_mod->sd, "cam state: POWER_OFF -> HW_STANDBY\n");
 			}
 		}
 		if (cam_mod->state == OV_CAMERA_MODULE_HW_STANDBY) {
@@ -595,6 +604,7 @@ int ov_camera_module_s_power(struct v4l2_subdev *sd, int on)
 			if (!IS_ERR_VALUE(ret)) {
 				mdelay(cam_mod->custom.power_up_delays_ms[1]);
 				cam_mod->state = OV_CAMERA_MODULE_SW_STANDBY;
+				pltfrm_camera_module_pr_info(&cam_mod->sd, "cam state: HW_STANDBY -> SW_STANDBY\n");
 				if (!IS_ERR_OR_NULL(
 				    cam_mod->custom.init_common) &&
 				    cam_mod->custom.init_common(
@@ -615,8 +625,10 @@ int ov_camera_module_s_power(struct v4l2_subdev *sd, int on)
 	} else {
 		if (cam_mod->state == OV_CAMERA_MODULE_STREAMING) {
 			ret = ov_camera_module_s_stream(sd, 0);
-			if (!IS_ERR_VALUE(ret))
+			if (!IS_ERR_VALUE(ret)){
 				cam_mod->state = OV_CAMERA_MODULE_SW_STANDBY;
+				pltfrm_camera_module_pr_info(&cam_mod->sd, "cam state: MODULE_STREAMING -> SW_STANDBY\n");
+			}
 		}
 		if (cam_mod->state == OV_CAMERA_MODULE_SW_STANDBY) {
 			ret = pltfrm_camera_module_set_pin_state(
@@ -624,13 +636,16 @@ int ov_camera_module_s_power(struct v4l2_subdev *sd, int on)
 				PLTFRM_CAMERA_MODULE_PIN_PD,
 				PLTFRM_CAMERA_MODULE_PIN_STATE_ACTIVE);
 
-			if (!IS_ERR_VALUE(ret))
+			if (!IS_ERR_VALUE(ret)){
 				cam_mod->state = OV_CAMERA_MODULE_HW_STANDBY;
+				pltfrm_camera_module_pr_info(&cam_mod->sd, "cam state: SW_STANDBY -> HW_STANDBY\n");
+			}
 		}
 		if (cam_mod->state == OV_CAMERA_MODULE_HW_STANDBY) {
 			ret = pltfrm_camera_module_s_power(&cam_mod->sd, 0);
 			if (!IS_ERR_VALUE(ret)) {
 				cam_mod->state = OV_CAMERA_MODULE_POWER_OFF;
+				pltfrm_camera_module_pr_info(&cam_mod->sd, "cam state: HW_STANDBY -> POWER_OFF\n");
 				ov_camera_module_reset(cam_mod);
 			}
 		}
@@ -1118,11 +1133,14 @@ long ov_camera_module_ioctl(struct v4l2_subdev *sd,
 		pltfrm_camera_module_ioctl(sd, PLTFRM_CIFCAM_G_ITF_CFG, arg);
 		return 0;
 	} else if (cmd == PLTFRM_CIFCAM_ATTACH) {
+		pltfrm_camera_module_pr_info(sd, "calling ov_camera_module_init");
 		ret = ov_camera_module_init(cam_mod, &cam_mod->custom);
 		if (!IS_ERR_VALUE(ret)) {
+			pltfrm_camera_module_pr_info(sd, "no error calling ov_camera_module_init");
 			pltfrm_camera_module_ioctl(sd, cmd, arg);
 			return ov_camera_module_attach(cam_mod);
 		} else {
+			pltfrm_camera_module_pr_err(sd, "errors calling ov_camera_module_init: %i", ret);
 			ov_camera_module_release(cam_mod);
 			return ret;
 		}

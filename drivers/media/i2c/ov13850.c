@@ -1211,6 +1211,8 @@ static int ov13850_probe(struct i2c_client *client,
 	struct v4l2_subdev *sd;
 	int ret;
 
+	dev_info(&client->dev, "probing...\n");
+
 	ov13850 = devm_kzalloc(dev, sizeof(*ov13850), GFP_KERNEL);
 	if (!ov13850)
 		return -ENOMEM;
@@ -1297,6 +1299,8 @@ static int ov13850_probe(struct i2c_client *client,
 	pm_runtime_set_active(dev);
 	pm_runtime_enable(dev);
 	pm_runtime_idle(dev);
+
+	dev_info(&client->dev, "probing successful\n");
 
 	return 0;
 

@@ -88,7 +88,7 @@
 
 //#define OV13850_ONE_LANE
 
-//#define OV13850_COLORBAR_TEST
+#define OV13850_COLORBAR_TEST
 
 static struct ov_camera_module ov13850;
 static struct ov_camera_module_custom_config ov13850_custom_config;
@@ -1940,15 +1940,18 @@ static struct ov_camera_module_custom_config ov13850_custom_config = {
 static int ov13850_probe(struct i2c_client *client,
 	const struct i2c_device_id *id)
 {
-	dev_info(&client->dev, "probing...\n");
+	dev_info(&client->dev, "v4lsubdev: probing...\n");
 
 	ov13850_filltimings(&ov13850_custom_config);
+
+	// Though ov13850_camera_module_ops->ov13850_camera_module_pad_ops->ov_camera_module_s_fmt sets the active config
+	// it is not called by v4l2_i2c_subdev_init
 	v4l2_i2c_subdev_init(&ov13850.sd, client, &ov13850_camera_module_ops);
 	ov13850.sd.flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;
 	ov13850.custom = ov13850_custom_config;
 
 	mutex_init(&ov13850.lock);
-	dev_info(&client->dev, "probing successful\n");
+	dev_info(&client->dev, "v4lsubdev: probing successful\n");
 	return 0;
 }
 
