@@ -1132,10 +1132,10 @@
 	status = "okay";
 };
 
-&cif_isp0 {
-	rockchip,camera-modules-attached = <&camera0>;
-	status = "okay";
-};
+// &cif_isp0 {
+// 	rockchip,camera-modules-attached = <&camera0>;
+// 	status = "disabled";
+// };
 
 &isp0_mmu {
 	status = "okay";
@@ -1150,7 +1150,7 @@
 };
 
 &rkisp1_0 {
-	
+	rockchip,camera-modules-attached = <&camera0>;
 	status = "okay";
 
 	port {

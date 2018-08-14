@@ -88,7 +88,7 @@
 
 //#define OV13850_ONE_LANE
 
-#define OV13850_COLORBAR_TEST
+//#define OV13850_COLORBAR_TEST
 
 static struct ov_camera_module ov13850;
 static struct ov_camera_module_custom_config ov13850_custom_config;

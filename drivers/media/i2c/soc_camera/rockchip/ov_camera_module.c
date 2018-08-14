@@ -114,8 +114,6 @@ static struct ov_camera_module_config *ov_camera_module_find_config(
 	unsigned long gcdiv;
 	struct v4l2_subdev_frame_interval norm_interval;
 
-	pltfrm_camera_module_pr_err(&cam_mod->sd, "find config called\n");
-
 	if (!IS_ERR_OR_NULL(fmt))
 		pltfrm_camera_module_pr_debug(&cam_mod->sd,
 			"%dx%d, fmt code 0x%04x\n",
@@ -290,8 +288,6 @@ int ov_camera_module_s_fmt(struct v4l2_subdev *sd,
 	struct v4l2_mbus_framefmt *fmt = &format->format;
 	int ret = 0;
 
-	pltfrm_camera_module_pr_err(&cam_mod->sd, "This method can set the active config\n");
-
 	pltfrm_camera_module_pr_debug(&cam_mod->sd, "%dx%d, fmt code 0x%04x\n",
 		fmt->width, fmt->height, fmt->code);
 
@@ -355,8 +351,6 @@ int ov_camera_module_s_frame_interval(
 	struct ov_camera_module_config *config;
 	unsigned int vts;
 	int ret = 0;
-
-	pltfrm_camera_module_pr_err(&cam_mod->sd, "This method can set the active config\n");
 
 	if ((interval->interval.denominator == 0) ||
 		(interval->interval.numerator == 0)) {

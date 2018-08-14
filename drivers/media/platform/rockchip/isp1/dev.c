@@ -597,6 +597,8 @@ static int rkisp1_plat_probe(struct platform_device *pdev)
 	struct resource *res;
 	int i, ret, irq;
 
+	dev_dbg(dev, "calling isp1 probe\n");
+
 	match = of_match_node(rkisp1_plat_of_match, node);
 	isp_dev = devm_kzalloc(dev, sizeof(*isp_dev), GFP_KERNEL);
 	if (!isp_dev)
